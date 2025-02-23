@@ -94,3 +94,16 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.tabs-trigger {
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease;
+}
+
+.tabs-trigger[data-state="active"] {
+  border-bottom-color: #7c3aed; /* 设置为你需要的边框颜色 */
+}
+
+.tabs-trigger:hover {
+  border-bottom-color: #7c3aed; /* 设置为你需要的边框颜色 */
+}
