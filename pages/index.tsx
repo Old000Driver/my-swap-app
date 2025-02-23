@@ -1,9 +1,9 @@
-import { Search, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Header } from "./components/header";
+import { Header } from "@/pages/components/Header";
 
 export default function SwapPage() {
   return (
