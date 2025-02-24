@@ -1,9 +1,7 @@
-"use client";
-
+import { useEffect, useState } from 'react';
 import { Send, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
 import { Swap } from "./Swap";
 import {
   Popover,
@@ -16,6 +14,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 export const Main = () => {
   const [showType, setShowType] = useState("swap");
   const [slippageValue, setSlippageValue] = useState("5.0");
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleSlippageChange = (value: string) => {
     console.log("Selected slippage value:", value);
@@ -45,7 +48,7 @@ export const Main = () => {
             </TabsList>
           </Tabs>
 
-          {showType === "swap" && (
+          {showType === "swap" && isClient && (
             <Popover>
               <PopoverTrigger>
                 <Button variant="ghost" size="icon" className="text-gray-400">
