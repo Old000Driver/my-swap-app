@@ -108,14 +108,14 @@ export const Swap = ({ slipValue }: SwapProps) => {
   const { data: balanceOne } = useBalance({
     address: address,
     token: tokenOne?.address as `0x${string}`,
-    watch: true,
   });
 
   const { data: balanceTwo } = useBalance({
     address: address,
     token: tokenTwo?.address as `0x${string}`,
-    watch: true,
   });
+
+  const [isInsufficientBalance, setIsInsufficientBalance] = useState(false);
 
   useEffect(() => {
     if (balanceOne) {
@@ -132,6 +132,12 @@ export const Swap = ({ slipValue }: SwapProps) => {
       );
     }
   }, [balanceTwo]);
+
+  useEffect(() => {
+    if (tokenOneAmount && tokenOneBalance) {
+      setIsInsufficientBalance(Number(tokenOneAmount) > Number(tokenOneBalance));
+    }
+  }, [tokenOneAmount, tokenOneBalance]);
 
   const handleSwapTokens = () => {
     if (tokenTwo === null || tokenOne === null) {
@@ -496,7 +502,7 @@ export const Swap = ({ slipValue }: SwapProps) => {
             type="text"
             inputMode="decimal"
             value={tokenOneAmount}
-            className="border-0 bg-transparent text-2xl w-1/2 p-0 focus-visible:ring-0"
+            className={`border-0 bg-transparent text-2xl w-1/2 p-0 focus-visible:ring-0 ${isInsufficientBalance ? 'text-red-500' : ''}`}
             onChange={changeAmount}
           />
           <div>
@@ -520,7 +526,7 @@ export const Swap = ({ slipValue }: SwapProps) => {
                   </span>
                 </div>
               </Button>
-              <div className="pt-2 text-sm text-gray-400">
+              <div className={`pt-2 text-sm ${isInsufficientBalance ? 'text-red-500' : 'text-gray-400'}`}>
                 {tokenOneBalance
                   ? `${Number(tokenOneBalance).toFixed(2)} ${tokenOne?.ticker}`
                   : ""}
@@ -606,13 +612,15 @@ export const Swap = ({ slipValue }: SwapProps) => {
       <Button
         className="w-full bg-purple-600 hover:bg-purple-700 mt-4 py-6 text-lg flex items-center justify-center"
         onClick={fetchDexSwap}
-        disabled={isFetchingPrice}
+        disabled={isFetchingPrice || isInsufficientBalance}
       >
         {isFetchingPrice ? (
           <>
             <Loader className="mr-2 animate-spin" />
             Searching Price...
           </>
+        ) : isInsufficientBalance ? (
+          "Insufficient Balance"
         ) : (
           "Swap"
         )}
