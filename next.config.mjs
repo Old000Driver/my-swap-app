@@ -2,7 +2,25 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["www.shareicon.net", "cdn.moralis.io"],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'www.shareicon.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.moralis.io',
+      },
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'token-icons.s3.amazonaws.com',
+      },
+      
+    ],
   },
 };
 

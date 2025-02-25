@@ -76,8 +76,8 @@ export const Main = () => {
                     <Label htmlFor="option-two">2.5%</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="5.0" id="option-two" />
-                    <Label htmlFor="option-two">5.0%</Label>
+                    <RadioGroupItem value="5.0" id="option-three" />
+                    <Label htmlFor="option-three">5.0%</Label>
                   </div>
                 </RadioGroup>
               </PopoverContent>
@@ -85,11 +85,11 @@ export const Main = () => {
           )}
         </div>
 
-        {showType === "swap" ? <Swap /> : <Send />}
+        {showType === "swap" ? <Swap slipValue={slippageValue} /> : <Send />}
 
-        <Button className="w-full bg-purple-600 hover:bg-purple-700 mt-4 py-6 text-lg">
+        {/* <Button className="w-full bg-purple-600 hover:bg-purple-700 mt-4 py-6 text-lg">
           {showType === "swap" ? "Swap" : "Send"}
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
