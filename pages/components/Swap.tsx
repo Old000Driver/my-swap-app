@@ -8,6 +8,13 @@ import { ReactElement, useEffect, useState } from "react";
 import { ChevronDown, ArrowDown, Loader } from "lucide-react";
 import { ethers, JsonRpcProvider } from "ethers";
 import { erc20Abi } from "viem";
+import {
+  swapETHToWETH,
+  swapWETHToETH,
+  swapETHToToken,
+  swapTokenToETH,
+  swapTokenToToken,
+} from "@/utils/swapUtils";
 
 import { toast } from "sonner";
 
@@ -160,82 +167,6 @@ export const Swap = ({ slipValue }: SwapProps) => {
     fetchPrices(tokenTwo, tokenOne);
   };
 
-  async function wrapETH(amount: string) {
-    const WETH_ADDRESS = tokenList[1].address; // Sepolia WETH: 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14
-
-    return new Promise<void>((resolve, reject) => {
-      writeContract(
-        {
-          address: WETH_ADDRESS as `0x${string}`,
-          abi: [
-            {
-              constant: false,
-              inputs: [],
-              name: "deposit",
-              outputs: [],
-              payable: true,
-              stateMutability: "payable",
-              type: "function",
-            },
-          ],
-          functionName: "deposit",
-          value: ethers.parseEther(amount), // 发送 ETH 作为 value
-        },
-        {
-          onSuccess: async (hash) => {
-            toast.success("Wrapping ETH to WETH: " + hash);
-            const receipt = await waitForTransactionReceipt(config, { hash });
-            console.log("Wrap ETH receipt:", receipt);
-            resolve();
-          },
-          onError: (error) => {
-            console.error("Wrap ETH failed:", error);
-            toast.error(`Wrap ETH failed: ${error.message}`);
-            reject(error);
-          },
-        }
-      );
-    });
-  }
-
-  async function unwrapWETH(amount: string) {
-    const WETH_ADDRESS = tokenList[1].address; // Sepolia WETH: 0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14
-
-    return new Promise<void>((resolve, reject) => {
-      writeContract(
-        {
-          address: WETH_ADDRESS as `0x${string}`,
-          abi: [
-            {
-              constant: false,
-              inputs: [{ name: "wad", type: "uint256" }],
-              name: "withdraw",
-              outputs: [],
-              payable: false,
-              stateMutability: "nonpayable",
-              type: "function",
-            },
-          ],
-          functionName: "withdraw",
-          args: [ethers.parseEther(amount)], // WETH 数量
-        },
-        {
-          onSuccess: async (hash) => {
-            toast.success("Unwrapping WETH to ETH: " + hash);
-            const receipt = await waitForTransactionReceipt(config, { hash });
-            console.log("Unwrap WETH receipt:", receipt);
-            resolve();
-          },
-          onError: (error) => {
-            console.error("Unwrap WETH failed:", error);
-            toast.error(`Unwrap WETH failed: ${error.message}`);
-            reject(error);
-          },
-        }
-      );
-    });
-  }
-
   function changeAmount(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value;
 
@@ -385,39 +316,6 @@ export const Swap = ({ slipValue }: SwapProps) => {
     }
   }
 
-  async function approveToken(tokenAddress: string, amount: string) {
-    if (!tokenOne) {
-      toast.warning("No token selected for approval");
-      return;
-    }
-    return new Promise<void>((resolve, reject) => {
-      writeContract(
-        {
-          address: tokenAddress as `0x${string}`,
-          abi: erc20Abi,
-          functionName: "approve",
-          args: [
-            UNISWAP_ROUTER_ADDRESS,
-            ethers.parseUnits(amount, tokenOne.decimals),
-          ],
-        },
-        {
-          onSuccess: async (hash) => {
-            toast.success("Approval transaction sent: " + hash);
-            const receipt = await waitForTransactionReceipt(config, { hash });
-            console.log("Approval receipt:", receipt);
-            resolve();
-          },
-          onError: (error) => {
-            console.error("Approval failed:", error);
-            toast.error(`Approval failed: ${error.message}`);
-            reject(error);
-          },
-        }
-      );
-    });
-  }
-
   async function fetchDexSwap() {
     if (!tokenOne || !tokenTwo) {
       toast.warning("Please select token first");
@@ -425,206 +323,73 @@ export const Swap = ({ slipValue }: SwapProps) => {
     }
     setIsSwapping(true);
     try {
-      const WETH_ADDRESS = tokenList[1].address; // Sepolia WETH
-      const isTokenOneETH = tokenOne.ticker === "ETH"; // tokenOne 是 ETH
-      const isTokenTwoETH = tokenTwo.ticker === "ETH"; // tokenTwo 是 ETH
+      const WETH_ADDRESS = tokenList[1].address;
+      const isTokenOneETH = tokenOne.ticker === "ETH";
+      const isTokenTwoETH = tokenTwo.ticker === "ETH";
       const isTokenOneWETH = tokenOne.address === WETH_ADDRESS;
       const isTokenTwoWETH = tokenTwo.address === WETH_ADDRESS;
-  
-      // 情况 1: ETH 和 WETH 互换，直接调用 wrapETH 或 unwrapWETH
+
+      if (!address) {
+        toast.warning("Please connect wallet");
+        return;
+      }
+
       if (isTokenOneETH && isTokenTwoWETH) {
-        await wrapETH(tokenOneAmount);
-        toast.success("ETH swapped to WETH directly");
-        setTokenOneAmount("0");
-        setTokenTwoAmount("0");
-        setIsSwapping(false);
-        return;
-      }
-      if (isTokenOneWETH && isTokenTwoETH) {
-        await unwrapWETH(tokenOneAmount);
-        toast.success("WETH swapped to ETH directly");
-        setTokenOneAmount("0");
-        setTokenTwoAmount("0");
-        setIsSwapping(false);
-        return;
-      }
-  
-      // 情况 2: tokenOne 是 ETH，使用 swapExactETHForTokens
-      if (isTokenOneETH) {
-        const tokenTwoToken = new Token(
-          ChainId.SEPOLIA,
-          tokenTwo.address,
-          tokenTwo.decimals
+        await swapETHToWETH(
+          tokenOneAmount,
+          writeContract,
+          setTokenOneAmount,
+          setTokenTwoAmount,
+          setIsSwapping,
+          WETH_ADDRESS
         );
-        const wethToken = new Token(ChainId.SEPOLIA, WETH_ADDRESS, 18);
-        const pair = await createPair(wethToken, tokenTwoToken);
-        const route = new Route([pair], wethToken, tokenTwoToken);
-  
-        const amountIn = formatTokenAmount(tokenOneAmount, 18); // ETH decimals = 18
-        const trade = new Trade(
-          route,
-          CurrencyAmount.fromRawAmount(wethToken, amountIn),
-          TradeType.EXACT_INPUT
+      } else if (isTokenOneWETH && isTokenTwoETH) {
+        await swapWETHToETH(
+          tokenOneAmount,
+          writeContract,
+          setTokenOneAmount,
+          setTokenTwoAmount,
+          setIsSwapping,
+          WETH_ADDRESS
         );
-  
-        const slippageTolerance = new Percent(Math.floor(slippage * 100), "10000");
-        const minAmount = trade.minimumAmountOut(slippageTolerance);
-        const amountOutMin = formatTokenAmount(minAmount.toExact(), tokenTwo.decimals);
-  
-        const path = [WETH_ADDRESS, tokenTwo.address];
-        const to = address;
-        const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-  
-        writeContract(
-          {
-            address: UNISWAP_ROUTER_ADDRESS,
-            abi: route02_ABI,
-            functionName: "swapExactETHForTokens",
-            args: [amountOutMin, path, to, deadline],
-            value: ethers.parseEther(tokenOneAmount), // 直接发送 ETH
-          },
-          {
-            onSuccess: async (hash) => {
-              toast.success("Swap transaction sent: " + hash);
-              const receipt = await waitForTransactionReceipt(config, { hash });
-              console.log("Transaction receipt:", receipt);
-              setTxDetails({
-                to: receipt.to,
-                data: receipt.data,
-                value: receipt.value,
-              });
-  
-              setTokenOneAmount("0");
-              setTokenTwoAmount("0");
-              setIsSwapping(false);
-            },
-            onError: (error) => {
-              console.log("Swap error:", error);
-              toast.error("Swap failed: " + error.message);
-              setIsSwapping(false);
-            },
-          }
+      } else if (isTokenOneETH) {
+        await swapETHToToken(
+          tokenOneAmount,
+          tokenTwo,
+          slippage,
+          address,
+          writeContract,
+          setTxDetails,
+          setTokenOneAmount,
+          setTokenTwoAmount,
+          setIsSwapping,
+          WETH_ADDRESS
         );
-      }
-      // 情况 3: tokenTwo 是 ETH，使用 swapExactTokensForETH
-      else if (isTokenTwoETH) {
-        const tokenOneToken = new Token(
-          ChainId.SEPOLIA,
-          tokenOne.address,
-          tokenOne.decimals
+      } else if (isTokenTwoETH) {
+        await swapTokenToETH(
+          tokenOne,
+          tokenOneAmount,
+          slippage,
+          address,
+          writeContract,
+          setTxDetails,
+          setTokenOneAmount,
+          setTokenTwoAmount,
+          setIsSwapping,
+          WETH_ADDRESS
         );
-        const wethToken = new Token(ChainId.SEPOLIA, WETH_ADDRESS, 18);
-        const pair = await createPair(tokenOneToken, wethToken);
-        const route = new Route([pair], tokenOneToken, wethToken);
-  
-        const amountIn = formatTokenAmount(tokenOneAmount, tokenOne.decimals);
-        const trade = new Trade(
-          route,
-          CurrencyAmount.fromRawAmount(tokenOneToken, amountIn),
-          TradeType.EXACT_INPUT
-        );
-  
-        const slippageTolerance = new Percent(Math.floor(slippage * 100), "10000");
-        const minAmount = trade.minimumAmountOut(slippageTolerance);
-        const amountOutMin = formatTokenAmount(minAmount.toExact(), 18); // ETH decimals = 18
-  
-        const path = [tokenOne.address, WETH_ADDRESS];
-        const to = address;
-        const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-  
-        await approveToken(tokenOne.address, tokenOneAmount); // 等待授权完成
-  
-        writeContract(
-          {
-            address: UNISWAP_ROUTER_ADDRESS,
-            abi: route02_ABI,
-            functionName: "swapExactTokensForETH",
-            args: [amountIn, amountOutMin, path, to, deadline],
-          },
-          {
-            onSuccess: async (hash) => {
-              toast.success("Swap transaction sent: " + hash);
-              const receipt = await waitForTransactionReceipt(config, { hash });
-              console.log("Transaction receipt:", receipt);
-              setTxDetails({
-                to: receipt.to,
-                data: receipt.data,
-                value: receipt.value,
-              });
-  
-              setTokenOneAmount("0");
-              setTokenTwoAmount("0");
-              setIsSwapping(false);
-            },
-            onError: (error) => {
-              console.log("Swap error:", error);
-              toast.error("Swap failed: " + error.message);
-              setIsSwapping(false);
-            },
-          }
-        );
-      }
-      // 情况 4: 普通代币兑换，走 swapExactTokensForTokens
-      else {
-        const tokenOneToken = new Token(
-          ChainId.SEPOLIA,
-          tokenOne.address,
-          tokenOne.decimals
-        );
-        const tokenTwoToken = new Token(
-          ChainId.SEPOLIA,
-          tokenTwo.address,
-          tokenTwo.decimals
-        );
-  
-        const pair = await createPair(tokenOneToken, tokenTwoToken);
-        const route = new Route([pair], tokenOneToken, tokenTwoToken);
-  
-        const amountIn = formatTokenAmount(tokenOneAmount, tokenOne.decimals);
-        const trade = new Trade(
-          route,
-          CurrencyAmount.fromRawAmount(tokenOneToken, amountIn),
-          TradeType.EXACT_INPUT
-        );
-  
-        const slippageTolerance = new Percent(Math.floor(slippage * 100), "10000");
-        const minAmount = trade.minimumAmountOut(slippageTolerance);
-        const amountOutMin = formatTokenAmount(minAmount.toExact(), tokenTwo.decimals);
-  
-        const path = [tokenOneToken.address, tokenTwo.address];
-        const to = address;
-        const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-  
-        await approveToken(tokenOne.address, tokenOneAmount); // 等待授权完成
-  
-        writeContract(
-          {
-            address: UNISWAP_ROUTER_ADDRESS,
-            abi: route02_ABI,
-            functionName: "swapExactTokensForTokens",
-            args: [amountIn, amountOutMin, path, to, deadline],
-          },
-          {
-            onSuccess: async (hash) => {
-              toast.success("Swap transaction sent: " + hash);
-              const receipt = await waitForTransactionReceipt(config, { hash });
-              console.log("Transaction receipt:", receipt);
-              setTxDetails({
-                to: receipt.to,
-                data: receipt.data,
-                value: receipt.value,
-              });
-  
-              setTokenOneAmount("0");
-              setTokenTwoAmount("0");
-              setIsSwapping(false);
-            },
-            onError: (error) => {
-              console.log("Swap error:", error);
-              toast.error("Swap failed: " + error.message);
-              setIsSwapping(false);
-            },
-          }
+      } else {
+        await swapTokenToToken(
+          tokenOne,
+          tokenTwo,
+          tokenOneAmount,
+          slippage,
+          address,
+          writeContract,
+          setTxDetails,
+          setTokenOneAmount,
+          setTokenTwoAmount,
+          setIsSwapping
         );
       }
     } catch (error: any) {
@@ -633,31 +398,6 @@ export const Swap = ({ slipValue }: SwapProps) => {
       setIsSwapping(false);
     }
   }
-
-  const formatTokenAmount = (amount: string, decimals: number) => {
-    const [integerPart, decimalPart = ""] = amount.split(".");
-
-    let combined = integerPart + decimalPart;
-
-    const paddingLength = decimals - decimalPart.length;
-
-    if (paddingLength > 0) {
-      combined = combined.padEnd(combined.length + paddingLength, "0");
-    } else if (paddingLength < 0) {
-      combined = combined.slice(0, combined.length + paddingLength);
-    }
-
-    combined = combined.replace(/^0+/, "");
-
-    console.log("amount:" + amount + ", result:" + combined);
-
-    return combined;
-  };
-
-  // useEffect(() => {
-  //   fetchPrices(tokenList[0], tokenList[1]);
-  // }, []);
-
   useEffect(() => {
     if (receipt) {
       console.log("Transaction receipt:", receipt);
