@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Send, Settings } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Swap } from "./Swap";
+import { Send } from "./Send";
 import {
   Popover,
   PopoverContent,
@@ -34,14 +35,22 @@ export const Main = () => {
               <TabsTrigger
                 value="swap"
                 onClick={() => setShowType("swap")}
-                className={`tab ${showType === "swap" ? "border-b-2 border-purple-700" : "border-transparent"}`}
+                className={`tab ${
+                  showType === "swap"
+                    ? "border-b-2 border-purple-700"
+                    : "border-transparent"
+                }`}
               >
                 Swap
               </TabsTrigger>
               <TabsTrigger
                 value="send"
                 onClick={() => setShowType("send")}
-                className={`tab ${showType === "send" ? "border-b-2 border-purple-700" : "border-transparent"}`}
+                className={`tab ${
+                  showType === "send"
+                    ? "border-b-2 border-purple-700"
+                    : "border-transparent"
+                }`}
               >
                 Send
               </TabsTrigger>
