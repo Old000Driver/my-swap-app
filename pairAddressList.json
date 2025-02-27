@@ -1,0 +1,12 @@
+[
+  {
+    "pairAddress": "0x6561cF90FDE56d6ADCcAa818C9bee07E0668d229",
+    "pairName": "WETH/LINK",
+    "pairToken0": "WETH",
+    "pairToken1": "LINK",
+    "pairToken0Address": "0xfFf9976782d46CC05630D1f6eBAb18b2324d6B14",
+    "pairToken1Address": "0x779877A7B0D9E8603169DdbD7836e478b4624789",
+    "pairToken0Decimals": 18,
+    "pairToken1Decimals": 18
+  }
+]
