@@ -7,7 +7,6 @@ import { SelectTokenDialog } from "./SelectTokenDialog";
 import { ReactElement, useEffect, useState } from "react";
 import { ChevronDown, ArrowDown, Loader } from "lucide-react";
 import { ethers, JsonRpcProvider } from "ethers";
-import { erc20Abi } from "viem";
 import {
   swapETHToWETH,
   swapWETHToETH,
@@ -20,9 +19,7 @@ import { toast } from "sonner";
 
 import { Pair, Route, Trade } from "@uniswap/v2-sdk";
 
-import { pair_ABI, route02_ABI } from "@/resource";
-
-import { config } from "@/wagmi";
+import { pair_ABI } from "@/resource";
 
 import {
   ChainId,
@@ -38,10 +35,6 @@ import {
   useWaitForTransactionReceipt,
   useBalance,
 } from "wagmi";
-
-import { Config } from "wagmi";
-
-import { waitForTransactionReceipt } from "@wagmi/core";
 
 import tokenList from "@/tokenList.json";
 
@@ -115,7 +108,7 @@ export const Swap = ({ slipValue }: SwapProps) => {
   const { data: balanceOne } = useBalance({
     address: address,
     token: tokenOne?.address as `0x${string}`,
-    // query: {
+// query: {
     //   refetchInterval: 15000, // 每 15 秒轮询一次
     // },
   });
@@ -123,7 +116,7 @@ export const Swap = ({ slipValue }: SwapProps) => {
   const { data: balanceTwo } = useBalance({
     address: address,
     token: tokenTwo?.address as `0x${string}`,
-    // query: {
+// query: {
     //   refetchInterval: 15000,
     // },
   });
@@ -192,7 +185,6 @@ export const Swap = ({ slipValue }: SwapProps) => {
 
     if (regex.test(value)) {
       setTokenOneAmount(value);
-      // fetchPrices(tokenOne, tokenTwo);
     }
   }
 
@@ -398,16 +390,17 @@ export const Swap = ({ slipValue }: SwapProps) => {
       setIsSwapping(false);
     }
   }
-  useEffect(() => {
-    if (receipt) {
-      console.log("Transaction receipt:", receipt);
-      setTxDetails({
-        to: receipt.to,
-        data: receipt.data,
-        value: receipt.value,
-      });
-    }
-  }, [receipt]);
+
+  // useEffect(() => {
+  //   if (receipt) {
+  //     console.log("Transaction receipt:", receipt);
+  //     setTxDetails({
+  //       to: receipt.to,
+  //       data: receipt.data,
+  //       value: receipt.value,
+  //     });
+  //   }
+  // }, [receipt]);
 
   useEffect(() => {
     if (tokenOne && tokenTwo) {
