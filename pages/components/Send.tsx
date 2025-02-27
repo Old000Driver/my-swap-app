@@ -167,12 +167,13 @@ export function Send() {
   const getButtonProps = () => {
     const isAmountValid = amount !== "" && !amountError;
     const isAddressValid = recipient !== "" && !addressError;
-  
+
     if (!amount) return { text: "Enter an amount", disabled: true };
     if (!recipient) return { text: "Enter address", disabled: true };
     if (addressError) return { text: "Invalid recipient", disabled: true };
     if (amountError) return { text: "Insufficient balance", disabled: true };
-    if (isEthPending || isTokenPending) return { text: "Sending...", disabled: true };
+    if (isEthPending || isTokenPending)
+      return { text: "Sending...", disabled: true };
     if (isConfirming) return { text: "Confirming...", disabled: true };
     // 移除 isConfirmed 条件，让状态重置后恢复正常
     return { text: "Send", disabled: false, isValid: true };
@@ -250,7 +251,7 @@ export function Send() {
           <Input
             value={recipient}
             onChange={handleRecipientChange}
-            className="bg-gray-800 border border-[#1A2235] text-white h-12 focus:border-gray-400 focus:ring-0 text-left"
+            className="bg-gray-800 border-none text-white h-12 focus:border-gray-400 focus:ring-0 text-left"
             placeholder="wallet address"
           />
           {addressError && (
@@ -259,26 +260,22 @@ export function Send() {
         </CardContent>
       </Card>
 
-      <Card className="border-none bg-gray-800">
-        <CardContent className="p-4">
-          <Button
-            disabled={buttonProps.disabled}
-            onClick={buttonProps.isValid ? handleSend : undefined}
-            className={`w-full h-12 border border-[#1A2235] ${
-              buttonProps.isValid
-                ? "bg-purple-600 text-white hover:bg-purple-700"
-                : "bg-gray-800 text-[#5D6785] hover:bg-[#1A2235]"
-            }`}
-          >
-            {buttonProps.text}
-          </Button>
-          {txHash && (
-            <div className="text-center text-gray-400 text-[12px] mt-2">
-              Tx: {txHash.slice(0, 6)}...{txHash.slice(-4)}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <Button
+        disabled={buttonProps.disabled}
+        onClick={buttonProps.isValid ? handleSend : undefined}
+        className={`w-full h-12 p-4 ${
+          buttonProps.isValid
+            ? "bg-purple-600 text-white hover:bg-purple-700"
+            : "bg-gray-700 text-gray-100 hover:bg-[#1A2235]"
+        }`}
+      >
+        {buttonProps.text}
+      </Button>
+      {txHash && (
+        <div className="text-center text-gray-400 text-[12px] mt-2">
+          Tx: {txHash.slice(0, 6)}...{txHash.slice(-4)}
+        </div>
+      )}
 
       <SelectTokenDialog
         open={dialogOpen}
