@@ -12,9 +12,14 @@ interface SelectTokenDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (token: any) => void;
+  filter?: string;
 }
 
-export const SelectTokenDialog = ({ open, onOpenChange, onSelect }: SelectTokenDialogProps) => {
+export const SelectTokenDialog = ({ open, onOpenChange, onSelect, filter }: SelectTokenDialogProps) => {
+  const filteredTokenList = filter === "pool"
+    ? tokenList.filter(token => token.ticker !== "WETH")
+    : tokenList;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-black border-gray-800">
@@ -22,7 +27,7 @@ export const SelectTokenDialog = ({ open, onOpenChange, onSelect }: SelectTokenD
           <DialogTitle className="text-xl">选择代币</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-5 gap-2 mt-4">
-          {tokenList.map((token) => (
+          {filteredTokenList.map((token) => (
             <button
               key={token.address}
               className="flex flex-col items-center space-y-2 p-3 rounded-xl hover:bg-gray-800 transition-colors"
