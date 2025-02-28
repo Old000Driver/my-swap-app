@@ -444,7 +444,7 @@ export const Swap = ({ slipValue }: SwapProps) => {
                 </div>
               </Button>
               <div
-                className={`pt-2 text-sm ${
+                className={`pt-2 text-sm text-center ${
                   isInsufficientBalance ? "text-red-500" : "text-gray-400"
                 }`}
               >
@@ -500,7 +500,7 @@ export const Swap = ({ slipValue }: SwapProps) => {
                   </span>
                 </div>
               </Button>
-              <div className="pt-2 text-sm text-gray-400">
+              <div className="pt-2 text-sm text-gray-400 text-center">
                 {tokenTwoBalance
                   ? `${Number(tokenTwoBalance).toFixed(2)} ${tokenTwo?.ticker}`
                   : ""}

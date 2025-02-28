@@ -9,6 +9,9 @@ import Image from "next/image";
 import tokenList from "@/tokenList.json";
 
 type Props = {
+  token1: Token | null;
+  token2: Token | null;
+  onTokenSelect: (token: Token | null, position: 1 | 2) => void;
   onNext: () => void;
 };
 
@@ -18,24 +21,12 @@ type Token = {
   ticker: string;
 };
 
-export const Step1 = ({ onNext }: Props) => {
-  const [token1, setToken1] = useState<Token | null>(tokenList[0]);
-  const [token2, setToken2] = useState<Token | null>(null);
+export const Step1 = ({ token1, token2, onTokenSelect, onNext }: Props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentButton, setCurrentButton] = useState<1 | 2 | null>(null);
 
-  const handleSelectToken = (token: any) => {
-    if (currentButton === 1) {
-      setToken1(token);
-      if (token2 && token2.address === token.address) {
-        setToken2(null);
-      }
-    } else if (currentButton === 2) {
-      setToken2(token);
-      if (token1 && token1.address === token.address) {
-        setToken1(null);
-      }
-    }
+  const handleSelectToken = (token: Token) => {
+    onTokenSelect(token, currentButton as 1 | 2);
     setDialogOpen(false);
   };
 
@@ -110,7 +101,12 @@ export const Step1 = ({ onNext }: Props) => {
       </div>
       <button
         onClick={onNext}
-        className="w-full bg-white text-black hover:bg-gray-200 py-4 rounded-lg font-bold"
+        className={`w-full py-4 rounded-lg font-bold ${
+          token1 && token2
+            ? "bg-white text-black hover:bg-gray-200"
+            : "bg-gray-400 text-gray-700 cursor-not-allowed"
+        }`}
+        disabled={!token1 || !token2}
       >
         继续
       </button>
