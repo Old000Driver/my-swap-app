@@ -4,9 +4,19 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 
 export const Header = () => {
   const router = useRouter();
+  const [selected, setSelected] = useState("swap");
+
+  useEffect(() => {
+    if (router.pathname.includes("position")) {
+      setSelected("pool");
+    } else {
+      setSelected("swap");
+    }
+  }, [router.pathname]);
 
   return (
     <div className="flex items-center justify-between px-4 py-3 bg-gray-900 border-b border-gray-800">
@@ -21,15 +31,21 @@ export const Header = () => {
         <div className="flex items-center space-x-4">
           <Button
             variant="link"
-            className="text-white font-medium text-lg"
-            onClick={() => router.push("/")}
+            className={`font-medium text-lg ${selected === "swap" ? "text-white" : "text-gray-400"}`}
+            onClick={() => {
+              setSelected("swap");
+              router.push("/");
+            }}
           >
             Swap
           </Button>
           <Button
             variant="link"
-            className="text-gray-400 font-medium text-lg"
-            onClick={() => router.push("/position")}
+            className={`font-medium text-lg ${selected === "pool" ? "text-white" : "text-gray-400"}`}
+            onClick={() => {
+              setSelected("pool");
+              router.push("/position");
+            }}
           >
             Pool
           </Button>
