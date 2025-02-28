@@ -82,13 +82,13 @@ export const PositionInfoItem = ({
           <div className="text-sm text-gray-400">Position</div>
         </div>
 
-        <div>
+        {/* <div>
           <div className="flex items-center text-lg font-bold mb-1">
             -
             <Info className="w-4 h-4 ml-1 text-gray-500" />
           </div>
           <div className="text-sm text-gray-400">Fees</div>
-        </div>
+        </div> */}
 
         <div className="col-span-3 text-right text-sm text-gray-400 mt-2">
           {status === "In range" && "Full range"}
