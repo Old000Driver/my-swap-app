@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { LockIcon } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { useAccount, useWriteContract, useReadContract, useBalance } from "wagmi";
+import { useAccount, useWriteContract, useReadContract, useBalance, useWaitForTransactionReceipt } from "wagmi";
 import { parseUnits } from "ethers";
 import tokenPairs from "@/pairAddressList.json";
 import { ethers } from "ethers";
 import { route02_ABI, pair_ABI } from "@/resource.js";
+import { useRouter } from "next/navigation";
 
 type Token = {
   address: string;
@@ -16,7 +17,11 @@ type Token = {
 
 export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token; onEdit: () => void }) => {
   const { address } = useAccount();
-  const { writeContract } = useWriteContract();
+  const { writeContract, isPending, data: hash } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
+  const router = useRouter();
   const routerAddress = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
 
   const [token1Amount, setToken1Amount] = useState<string>("");
@@ -57,36 +62,22 @@ export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token
   const token1ExceedsBalance = token1Amount !== "" && Number(token1Amount) > Number(token1BalanceValue);
   const token2ExceedsBalance = token2Amount !== "" && Number(token2Amount) > Number(token2BalanceValue);
 
-  const handleMaxToken1 = () => setToken1Amount(token1BalanceValue);
-  const handleMaxToken2 = () => setToken2Amount(token2BalanceValue);
-
   const isAmountEntered = token1Amount !== "" || token2Amount !== "";
   const hasBalanceError = token1ExceedsBalance || token2ExceedsBalance;
 
-  // 输入验证函数
   const validateAndFormatInput = (value: string): string => {
-    // 移除前导零（除非是小数）
     let cleanedValue = value.replace(/^0+(?=\d)/, '');
-    
-    // 只允许数字和小数点
     cleanedValue = cleanedValue.replace(/[^0-9.]/g, '');
-    
-    // 确保只有一个 decimal point
     const parts = cleanedValue.split('.');
     if (parts.length > 2) {
       cleanedValue = parts[0] + '.' + parts.slice(1).join('');
     }
-    
-    // 限制小数位数为6位
     if (parts[1]) {
       cleanedValue = parts[0] + '.' + parts[1].slice(0, 6);
     }
-    
-    // 如果是空字符串或只有小数点，返回空字符串
     if (cleanedValue === '' || cleanedValue === '.') {
       return '';
     }
-    
     return cleanedValue;
   };
 
@@ -106,6 +97,13 @@ export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token
     }
   };
 
+  // 监听交易确认状态
+  useEffect(() => {
+    if (isConfirmed) {
+      router.push('/position');
+    }
+  }, [isConfirmed, router]);
+
   const handleAddLiquidity = async () => {
     if (!token1Amount || !token2Amount || !address || hasBalanceError) return;
 
@@ -113,49 +111,55 @@ export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token
     const amount2 = parseUnits(token2Amount, token2Balance?.decimals || 18);
     const deadline = Math.floor(Date.now() / 1000) + 30 * 60;
 
-    if (!isToken1ETH) {
-      await writeContract({
-        address: token1.address as `0x${string}`,
-        abi: ["function approve(address spender, uint256 amount) returns (bool)"],
-        functionName: "approve",
-        args: [routerAddress, amount1],
-      });
-    }
-    if (!isToken2ETH) {
-      await writeContract({
-        address: token2.address as `0x${string}`,
-        abi: ["function approve(address spender, uint256 amount) returns (bool)"],
-        functionName: "approve",
-        args: [routerAddress, amount2],
-      });
-    }
+    try {
+      if (!isToken1ETH) {
+        await writeContract({
+          address: token1.address as `0x${string}`,
+          abi: ["function approve(address spender, uint256 amount) returns (bool)"],
+          functionName: "approve",
+          args: [routerAddress, amount1],
+        });
+      }
+      if (!isToken2ETH) {
+        await writeContract({
+          address: token2.address as `0x${string}`,
+          abi: ["function approve(address spender, uint256 amount) returns (bool)"],
+          functionName: "approve",
+          args: [routerAddress, amount2],
+        });
+      }
 
-    if (isToken1ETH || isToken2ETH) {
-      await writeContract({
-        address: routerAddress,
-        abi: route02_ABI,
-        functionName: "addLiquidityETH",
-        args: [
-          isToken1ETH ? token2.address : token1.address,
-          isToken1ETH ? amount2 : amount1,
-          0,
-          0,
-          address,
-          deadline,
-        ],
-        value: isToken1ETH ? amount1 : amount2,
-      });
-    } else {
-      await writeContract({
-        address: routerAddress,
-        abi: route02_ABI,
-        functionName: "addLiquidity",
-        args: [token1.address, token2.address, amount1, amount2, 0, 0, address, deadline],
-      });
+      if (isToken1ETH || isToken2ETH) {
+        await writeContract({
+          address: routerAddress,
+          abi: route02_ABI,
+          functionName: "addLiquidityETH",
+          args: [
+            isToken1ETH ? token2.address : token1.address,
+            isToken1ETH ? amount2 : amount1,
+            0,
+            0,
+            address,
+            deadline,
+          ],
+          value: isToken1ETH ? amount1 : amount2,
+        });
+      } else {
+        await writeContract({
+          address: routerAddress,
+          abi: route02_ABI,
+          functionName: "addLiquidity",
+          args: [token1.address, token2.address, amount1, amount2, 0, 0, address, deadline],
+        });
+      }
+    } catch (error) {
+      console.error("Transaction failed:", error);
     }
   };
 
-  const buttonText = hasBalanceError
+  const buttonText = (isPending || isConfirming)
+    ? "Creating position..."
+    : hasBalanceError
     ? `${token1ExceedsBalance ? token1.ticker : ""}${
         token1ExceedsBalance && token2ExceedsBalance ? " 和 " : ""
       }${token2ExceedsBalance ? token2.ticker : ""} 余额不足`
@@ -202,9 +206,6 @@ export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token
             </div>
             <div className="flex justify-end mt-2 text-sm">
               <span className="text-gray-400">{token1BalanceValue} {token1.ticker}</span>
-              <button onClick={handleMaxToken1} className="ml-2 text-purple-500 hover:text-purple-400">
-                最高
-              </button>
             </div>
           </div>
 
@@ -226,9 +227,6 @@ export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token
             </div>
             <div className="flex justify-end mt-2 text-sm">
               <span className="text-gray-400">{token2BalanceValue} {token2.ticker}</span>
-              <button onClick={handleMaxToken2} className="ml-2 text-purple-500 hover:text-purple-400">
-                最高
-              </button>
             </div>
           </div>
 
@@ -239,11 +237,11 @@ export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token
           <Button
             onClick={handleAddLiquidity}
             className={`w-full py-4 rounded-2xl text-center font-medium ${
-              isAmountEntered && !hasBalanceError
+              (isAmountEntered && !hasBalanceError && !isPending && !isConfirming)
                 ? "bg-purple-600 hover:bg-purple-700"
                 : "bg-gray-600 text-gray-400 cursor-not-allowed"
             }`}
-            disabled={!isAmountEntered || hasBalanceError}
+            disabled={!isAmountEntered || hasBalanceError || isPending || isConfirming}
           >
             {buttonText}
           </Button>
