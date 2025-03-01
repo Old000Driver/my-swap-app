@@ -1,6 +1,7 @@
 import { Info } from "lucide-react";
 import Image from "next/image";
 import { ethers } from "ethers";
+import { useRouter } from "next/router";
 
 type PositionInfoItemProps = {
   pairAddress: string;
@@ -34,9 +35,10 @@ export const PositionInfoItem = ({
     lpBalance > BigInt(0) &&
     (reserves?.[0] > BigInt(0) || reserves?.[1] > BigInt(0));
   const status = isAvailable ? "In range" : "Unavailable";
+  const route = useRouter();
 
   return (
-    <div className="bg-gray-900 rounded-xl overflow-hidden">
+    <div className="bg-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-800 transition-colors" onClick={()=>route.push(`/position/${pairAddress}`)}>
       <div className="p-4 flex justify-between items-center">
         <div className="flex items-center">
           <div className="relative w-10 h-10 mr-3">
