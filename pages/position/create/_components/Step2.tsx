@@ -189,7 +189,7 @@ export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token
           </div>
 
           <div className="bg-gray-800 rounded-2xl p-4">
-            <div className="flex justify-between">
+            <div className="flex justify-between pr-2">
               <input
                 value={token1Amount}
                 onChange={(e) => calculateToken2(e.target.value)}
@@ -210,7 +210,7 @@ export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token
           </div>
 
           <div className="bg-gray-800 rounded-2xl p-4">
-            <div className="flex justify-between">
+            <div className="flex justify-between  pr-2">
               <input
                 value={token2Amount}
                 onChange={(e) => calculateToken1(e.target.value)}
