@@ -19,7 +19,7 @@ export const Header = ({ onReset }: Props) => {
   return (
     <div className="border-red-500 mb-6">
       <div className="text-sm text-gray-400 mb-2">
-        <Link href="/positions" className="hover:text-gray-300">
+        <Link href="/position" className="hover:text-gray-300">
           你的头寸
         </Link>
         <span className="mx-2">{">"}</span>
