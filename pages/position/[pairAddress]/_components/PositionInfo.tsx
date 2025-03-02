@@ -3,35 +3,236 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ChevronRight, Lock } from "lucide-react";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import { ethers } from "ethers";
+import { useAccount, useReadContract } from "wagmi";
+import { pair_ABI } from "@/resource.js"; // 假设 ABI 定义在此处
+import { routerAddress } from "@/resource.js";
+
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { AddLiquidityDialog } from "./AddLiquidityDialog";
+import tokenList from "@/tokenList.json";
+import type { Token } from "@/types";
 
 export function PositionInfo() {
+  const router = useRouter();
+  const { pairAddress } = router.query;
+  const { address: userAddress } = useAccount();
+  const [open, setOpen] = useState(false);
+  const [token0Token, setToken0Token] = useState<Token | null>(null);
+  const [token1Token, setToken1Token] = useState<Token | null>(null);
+
+  const erc20_ABI = [
+    {
+      inputs: [],
+      name: "decimals",
+      outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+      stateMutability: "view",
+      type: "function",
+    },
+    {
+      inputs: [],
+      name: "symbol",
+      outputs: [{ internalType: "string", name: "", type: "string" }],
+      stateMutability: "view",
+      type: "function",
+    },
+  ];
+
+  const [positionData, setPositionData] = useState<{
+    pairName: string;
+    pairToken0: string;
+    pairToken1: string;
+    lpBalance: bigint;
+    reserves: [bigint, bigint];
+    token0Decimals: number;
+    token1Decimals: number;
+  } | null>(null);
+
+  // 获取 Pair 合约数据
+  const { data: token0Address } = useReadContract({
+    address: pairAddress as `0x${string}`,
+    abi: pair_ABI,
+    functionName: "token0",
+  });
+  const { data: token1Address } = useReadContract({
+    address: pairAddress as `0x${string}`,
+    abi: pair_ABI,
+    functionName: "token1",
+  });
+  const { data: lpBalance } = useReadContract({
+    address: pairAddress as `0x${string}`,
+    abi: pair_ABI,
+    functionName: "balanceOf",
+    args: [userAddress],
+  });
+  const { data: reservesData } = useReadContract({
+    address: pairAddress as `0x${string}`,
+    abi: pair_ABI,
+    functionName: "getReserves",
+  }) as { data: [bigint, bigint, number] | undefined };
+  const { data: totalSupply } = useReadContract({
+    address: pairAddress as `0x${string}`,
+    abi: pair_ABI,
+    functionName: "totalSupply",
+  });
+
+  // 获取代币符号和小数位
+  const { data: token0Symbol } = useReadContract({
+    address: token0Address as `0x${string}`,
+    abi: erc20_ABI,
+    functionName: "symbol",
+  });
+  const { data: token1Symbol } = useReadContract({
+    address: token1Address as `0x${string}`,
+    abi: erc20_ABI,
+    functionName: "symbol",
+  });
+  const { data: token0Decimals } = useReadContract({
+    address: token0Address as `0x${string}`,
+    abi: erc20_ABI,
+    functionName: "decimals",
+  });
+  const { data: token1Decimals } = useReadContract({
+    address: token1Address as `0x${string}`,
+    abi: erc20_ABI,
+    functionName: "decimals",
+  });
+
+  // 组合数据
+  useEffect(() => {
+    if (
+      token0Symbol &&
+      token1Symbol &&
+      lpBalance &&
+      reservesData &&
+      token0Decimals &&
+      token1Decimals
+    ) {
+      tokenList.forEach((token) => {
+        if (token.address === token0Address) {
+          if (token.ticker === "WETH") token = tokenList[0];
+          setToken0Token(token);
+        }
+        if (token.address === token1Address) {
+          if (token.ticker === "WETH") token = tokenList[0];
+          setToken1Token(token);
+        }
+      });
+      setPositionData({
+        pairName: `${token0Symbol} / ${token1Symbol}`,
+        pairToken0: token0Symbol as string,
+        pairToken1: token1Symbol as string,
+        lpBalance: lpBalance as bigint,
+        reserves: [reservesData[0], reservesData[1]],
+        token0Decimals: token0Decimals as number,
+        token1Decimals: token1Decimals as number,
+      });
+    }
+  }, [
+    token0Symbol,
+    token1Symbol,
+    lpBalance,
+    reservesData,
+    token0Decimals,
+    token1Decimals,
+  ]);
+
+  if (!positionData || !pairAddress || !userAddress) {
+    return (
+      <div className="min-h-screen w-screen bg-black text-white p-6">
+        <div className="max-w-2xl mx-auto p-4 text-center">
+          loading Position Info...
+        </div>
+      </div>
+    );
+  }
+
+  // 计算各项值
+  const lpBalanceFormatted = ethers.formatUnits(positionData.lpBalance, 18);
+  const token0Amount = ethers.formatUnits(
+    positionData.reserves[0],
+    positionData.token0Decimals
+  );
+  const token1Amount = ethers.formatUnits(
+    positionData.reserves[1],
+    positionData.token1Decimals
+  );
+  const totalValue = (
+    Number(token0Amount) * 0.1 + // 模拟价格 $0.1 per LINK
+    Number(token1Amount) * 5000
+  ) // 模拟价格 $5000 per ETH
+    .toFixed(2);
+  const poolShare = totalSupply
+    ? (
+        (Number(ethers.formatUnits(lpBalance as bigint, 18)) /
+          Number(ethers.formatUnits(totalSupply as bigint, 18))) *
+        100
+      ).toFixed(2)
+    : "0";
+
+  // 代币图片
+  const token0Image =
+    positionData.pairToken0 === "LINK"
+      ? "https://cdn.moralis.io/eth/0x514910771af9ca656af840dff83e8264ecf986ca.png"
+      : "https://token-icons.s3.amazonaws.com/eth.png";
+  const token1Image =
+    positionData.pairToken1 === "ETH"
+      ? "https://token-icons.s3.amazonaws.com/eth.png"
+      : "https://cdn.moralis.io/eth/0x514910771af9ca656af840dff83e8264ecf986ca.png";
+  const pairImage =
+    "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png";
+
   return (
-    <div className="min-h-screen w-screen bg-black text-white p-6">
+    <div className="w-screen bg-black text-white p-6">
       <div className="max-w-2xl mx-auto p-4 border border-gray-700 rounded-3xl">
-        {/* Header navigation */}
         <div className="flex items-center text-gray-400 mb-6">
-          <span>你的头寸</span>
+          <span
+            onClick={() => router.push("/position")}
+            className="cursor-pointer"
+          >
+            Your Position
+          </span>
           <ChevronRight className="h-4 w-4 mx-1" />
-          <span>0x6561...d229</span>
+          <span className="text-white">
+            {pairAddress.toString().slice(0, 6)}...
+            {pairAddress.toString().slice(-4)}
+          </span>
         </div>
 
-        {/* Token pair info */}
         <div className="flex items-center mb-6">
           <div className="relative h-12 w-12 mr-3">
             <Image
-              src="/placeholder.svg?height=48&width=48"
-              alt="Token logo"
+              src={token0Token?.img || ""}
+              alt={`${positionData.pairName} pair`}
               width={48}
               height={48}
               className="rounded-full bg-gray-800"
             />
             <div className="absolute -bottom-1 -right-1 bg-black rounded-full p-0.5">
-              <Lock className="h-4 w-4" />
+              <Image
+                src={token1Token?.img || ""}
+                alt=""
+                width={16}
+                height={16}
+              />
             </div>
           </div>
+          {/* <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-black border border-zinc-800 rounded-full flex items-center justify-center">
+            <Image
+              src={token1Token?.img || ""}
+              alt=""
+              width={16}
+              height={16}
+            />
+          </div> */}
+
           <div>
             <div className="flex items-center">
-              <h1 className="text-xl font-bold mr-2">LINK / WETH</h1>
+              <h1 className="text-xl font-bold mr-2">
+                {positionData.pairName}
+              </h1>
               <Badge variant="outline" className="bg-gray-800 text-xs h-5">
                 v2
               </Badge>
@@ -43,33 +244,42 @@ export function PositionInfo() {
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex gap-3 mb-6">
-          <Button
-            variant="outline"
-            className="rounded-full bg-gray-900 border-gray-700 hover:bg-gray-800"
-          >
-            添加流动性
-          </Button>
-          {/* <Button className="rounded-full bg-white text-black hover:bg-gray-200">移除流动性</Button> */}
-        </div>
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogTrigger asChild>
+            <div className="flex gap-3 mb-6">
+              <Button
+                variant="outline"
+                className="rounded-full bg-gray-900 border-gray-700 hover:bg-white hover:text-black"
+                onClick={() => setOpen(true)}
+              >
+                添加流动性
+              </Button>
+            </div>
+          </DialogTrigger>
+          <AddLiquidityDialog
+            token1={token0Token!}
+            token2={token1Token!}
+            pairAddress={pairAddress as string}
+            routerAddress={routerAddress}
+          />
+        </Dialog>
 
-        {/* Stats card */}
         <Card className="bg-gray-900 border-gray-800 p-6 text-white rounded-xl">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
               <span className="text-gray-400">当前头寸值</span>
-              <span className="text-xl font-medium">US$425.79</span>
+              <span className="text-xl font-medium">US${totalValue}</span>
             </div>
-
             <div className="flex justify-between items-center">
               <span className="text-gray-400">你的资金池代币总数:</span>
               <div className="flex items-center">
-                <span className="mr-2">1.82</span>
+                <span className="mr-2">
+                  {Number(lpBalanceFormatted).toFixed(2)}
+                </span>
                 <div className="bg-gray-800 rounded-full p-1">
                   <Image
-                    src="/placeholder.svg?height=20&width=20"
-                    alt="Token"
+                    src={pairImage}
+                    alt="LP Token"
                     width={20}
                     height={20}
                     className="rounded-full"
@@ -77,15 +287,16 @@ export function PositionInfo() {
                 </div>
               </div>
             </div>
-
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">已存入 LINK</span>
+              <span className="text-gray-400">
+                已存入 {positionData.pairToken0}
+              </span>
               <div className="flex items-center">
-                <span className="mr-2">168.77</span>
+                <span className="mr-2">{Number(token0Amount).toFixed(2)}</span>
                 <div className="bg-gray-800 rounded-full p-1">
                   <Image
-                    src="/placeholder.svg?height=20&width=20"
-                    alt="LINK"
+                    src={token0Image}
+                    alt={positionData.pairToken0}
                     width={20}
                     height={20}
                     className="rounded-full"
@@ -93,15 +304,16 @@ export function PositionInfo() {
                 </div>
               </div>
             </div>
-
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">已存入 WETH</span>
+              <span className="text-gray-400">
+                已存入 {positionData.pairToken1}
+              </span>
               <div className="flex items-center">
-                <span className="mr-2">0.020</span>
+                <span className="mr-2">{Number(token1Amount).toFixed(2)}</span>
                 <div className="bg-gray-800 rounded-full p-1">
                   <Image
-                    src="/placeholder.svg?height=20&width=20"
-                    alt="WETH"
+                    src={token1Image}
+                    alt={positionData.pairToken1}
                     width={20}
                     height={20}
                     className="rounded-full"
@@ -109,10 +321,9 @@ export function PositionInfo() {
                 </div>
               </div>
             </div>
-
             <div className="flex justify-between items-center">
               <span className="text-gray-400">资金池份额</span>
-              <span>5.62%</span>
+              <span>{poolShare}%</span>
             </div>
           </div>
         </Card>

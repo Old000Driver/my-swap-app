@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AddLiquidityForm } from "./AddLiquidityForm"; // 假设新组件在同一目录下
+import { routerAddress } from "@/resource";
 
 type Token = {
   address: string;
@@ -10,7 +11,6 @@ type Token = {
 
 export const Step2 = ({ token1, token2, onEdit }: { token1: Token; token2: Token; onEdit: () => void }) => {
   const pairAddress = "0x6561cF90FDE56d6ADCcAa818C9bee07E0668d229";
-  const routerAddress = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
 
   return (
     <div className="flex justify-center items-center bg-gray-900 rounded-xl text-white p-4">
