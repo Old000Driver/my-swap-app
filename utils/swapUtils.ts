@@ -10,6 +10,7 @@ import { config } from "@/wagmi";
 const UNISWAP_ROUTER_ADDRESS = "0xeE567Fe1712Faf6149d80dA1E6934E354124CfE3";
 const ALCHEMY_RPC_SEPOLIA = process.env.NEXT_PUBLIC_SEPOLIA_RPC;
 
+
 type TokenType = {
   address: string;
   ticker: string;

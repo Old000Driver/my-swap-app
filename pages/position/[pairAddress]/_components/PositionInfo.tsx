@@ -2,15 +2,21 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ChevronRight, Lock } from "lucide-react";
+import { ChevronRight, Lock, X } from "lucide-react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { useAccount, useReadContract } from "wagmi";
 import { pair_ABI } from "@/resource.js"; // 假设 ABI 定义在此处
 import { routerAddress } from "@/resource.js";
+import { RemoveLiquidityForm } from "./RemoveLiquidityForm";
 
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { AddLiquidityDialog } from "./AddLiquidityDialog";
 import tokenList from "@/tokenList.json";
 import type { Token } from "@/types";
@@ -22,6 +28,12 @@ export function PositionInfo() {
   const [open, setOpen] = useState(false);
   const [token0Token, setToken0Token] = useState<Token | null>(null);
   const [token1Token, setToken1Token] = useState<Token | null>(null);
+
+  const [openAdd, setOpenAdd] = useState(false);
+  const [openRemove, setOpenRemove] = useState(false);
+  const [isTransactionActiveAdd, setIsTransactionActiveAdd] = useState(false);
+  const [isTransactionActiveRemove, setIsTransactionActiveRemove] =
+    useState(false);
 
   const erc20_ABI = [
     {
@@ -99,6 +111,14 @@ export function PositionInfo() {
     abi: erc20_ABI,
     functionName: "decimals",
   });
+
+  const handleCloseAddDialog = () => {
+    if (!isTransactionActiveAdd) setOpenAdd(false);
+  };
+
+  const handleCloseRemoveDialog = () => {
+    if (!isTransactionActiveRemove) setOpenRemove(false);
+  };
 
   // 组合数据
   useEffect(() => {
@@ -244,25 +264,67 @@ export function PositionInfo() {
           </div>
         </div>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <div className="flex gap-3 mb-6">
+        <div className="flex gap-4">
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <div className="flex gap-3 mb-6">
+                <Button
+                  variant="outline"
+                  className="rounded-full bg-gray-900 border-gray-700 hover:bg-white hover:text-black"
+                  onClick={() => setOpen(true)}
+                >
+                  添加流动性
+                </Button>
+              </div>
+            </DialogTrigger>
+            <AddLiquidityDialog
+              token1={token0Token!}
+              token2={token1Token!}
+              pairAddress={pairAddress as string}
+              routerAddress={routerAddress}
+            />
+          </Dialog>
+
+          <Dialog
+            open={openRemove}
+            onOpenChange={(newOpen) =>
+              !isTransactionActiveRemove && setOpenRemove(newOpen)
+            }
+          >
+            <DialogTrigger asChild>
               <Button
                 variant="outline"
                 className="rounded-full bg-gray-900 border-gray-700 hover:bg-white hover:text-black"
-                onClick={() => setOpen(true)}
+                onClick={() => setOpenRemove(true)}
               >
-                添加流动性
+                移除流动性
               </Button>
-            </div>
-          </DialogTrigger>
-          <AddLiquidityDialog
-            token1={token0Token!}
-            token2={token1Token!}
-            pairAddress={pairAddress as string}
-            routerAddress={routerAddress}
-          />
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent hideCloseButton={true} className="sm:max-w-md p-0 bg-gray-900 text-white border-zinc-800 overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+                <h2 className="text-lg font-medium">移除流动性</h2>
+                <DialogClose asChild>
+                  <button
+                    className="text-zinc-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isTransactionActiveRemove}
+                    onClick={handleCloseRemoveDialog}
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </DialogClose>
+              </div>
+              <div className="p-4">
+                <RemoveLiquidityForm
+                  token1={token0Token!}
+                  token2={token1Token!}
+                  pairAddress={pairAddress as string}
+                  routerAddress={routerAddress}
+                  onTransactionStatusChange={setIsTransactionActiveRemove}
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
 
         <Card className="bg-gray-900 border-gray-800 p-6 text-white rounded-xl">
           <div className="space-y-4">
