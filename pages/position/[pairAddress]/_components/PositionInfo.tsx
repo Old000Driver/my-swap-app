@@ -198,7 +198,7 @@ export function PositionInfo() {
       ? "https://cdn.moralis.io/eth/0x514910771af9ca656af840dff83e8264ecf986ca.png"
       : "https://token-icons.s3.amazonaws.com/eth.png";
   const token1Image =
-    positionData.pairToken1 === "ETH"
+    positionData.pairToken1 === "ETH" || "WETH"
       ? "https://token-icons.s3.amazonaws.com/eth.png"
       : "https://cdn.moralis.io/eth/0x514910771af9ca656af840dff83e8264ecf986ca.png";
   const pairImage =
@@ -239,14 +239,6 @@ export function PositionInfo() {
               />
             </div>
           </div>
-          {/* <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-black border border-zinc-800 rounded-full flex items-center justify-center">
-            <Image
-              src={token1Token?.img || ""}
-              alt=""
-              width={16}
-              height={16}
-            />
-          </div> */}
 
           <div>
             <div className="flex items-center">
@@ -259,7 +251,7 @@ export function PositionInfo() {
             </div>
             <div className="flex items-center mt-1">
               <span className="h-2 w-2 bg-green-500 rounded-full mr-2"></span>
-              <span className="text-sm text-gray-400">在区域内</span>
+              <span className="text-sm text-gray-400">In Range</span>
             </div>
           </div>
         </div>
@@ -273,7 +265,7 @@ export function PositionInfo() {
                   className="rounded-full bg-gray-900 border-gray-700 hover:bg-white hover:text-black"
                   onClick={() => setOpen(true)}
                 >
-                  添加流动性
+                  Add Liquidity
                 </Button>
               </div>
             </DialogTrigger>
@@ -297,12 +289,12 @@ export function PositionInfo() {
                 className="rounded-full bg-gray-900 border-gray-700 hover:bg-white hover:text-black"
                 onClick={() => setOpenRemove(true)}
               >
-                移除流动性
+                Remove Liquidity
               </Button>
             </DialogTrigger>
             <DialogContent hideCloseButton={true} className="sm:max-w-md p-0 bg-gray-900 text-white border-zinc-800 overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-zinc-800">
-                <h2 className="text-lg font-medium">移除流动性</h2>
+                <h2 className="text-lg font-medium">Remove Liquidity</h2>
                 <DialogClose asChild>
                   <button
                     className="text-zinc-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
@@ -329,11 +321,11 @@ export function PositionInfo() {
         <Card className="bg-gray-900 border-gray-800 p-6 text-white rounded-xl">
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">当前头寸值</span>
+              <span className="text-gray-400">Current Position Value</span>
               <span className="text-xl font-medium">US${totalValue}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">你的资金池代币总数:</span>
+              <span className="text-gray-400">Your Pool Token Balance:</span>
               <div className="flex items-center">
                 <span className="mr-2">
                   {Number(lpBalanceFormatted).toFixed(2)}
@@ -351,7 +343,7 @@ export function PositionInfo() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">
-                已存入 {positionData.pairToken0}
+                Deposited {positionData.pairToken0}
               </span>
               <div className="flex items-center">
                 <span className="mr-2">{Number(token0Amount).toFixed(2)}</span>
@@ -368,7 +360,7 @@ export function PositionInfo() {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-400">
-                已存入 {positionData.pairToken1}
+                Deposited {positionData.pairToken1}
               </span>
               <div className="flex items-center">
                 <span className="mr-2">{Number(token1Amount).toFixed(2)}</span>
@@ -384,7 +376,7 @@ export function PositionInfo() {
               </div>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-gray-400">资金池份额</span>
+              <span className="text-gray-400">Pool Share</span>
               <span>{poolShare}%</span>
             </div>
           </div>

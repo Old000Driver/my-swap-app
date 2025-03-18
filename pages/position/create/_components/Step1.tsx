@@ -32,9 +32,9 @@ export const Step1 = ({ token1, token2, onTokenSelect, onNext }: Props) => {
 
   return (
     <div className="w-2/3 bg-gray-900 rounded-xl p-6">
-      <h2 className="text-xl font-bold mb-2">选择代币对</h2>
+      <h2 className="text-xl font-bold mb-2">Select Token Pair</h2>
       <p className="text-gray-400 mb-6">
-        选择你想要提供流动性的代币。你可以在所有支持的网络上选择代币。
+        Choose the tokens you want to provide liquidity for. You can select tokens across all supported networks.
       </p>
 
       <div className="flex gap-4 mb-8">
@@ -59,7 +59,7 @@ export const Step1 = ({ token1, token2, onTokenSelect, onNext }: Props) => {
                 <span>{token1.ticker}</span>
               </>
             ) : (
-              <span>选择代币</span>
+              <span>Select Token</span>
             )}
           </div>
           <ChevronDownIcon className="w-5 h-5" />
@@ -86,7 +86,7 @@ export const Step1 = ({ token1, token2, onTokenSelect, onNext }: Props) => {
                 <span>{token2.ticker}</span>
               </>
             ) : (
-              <span>选择代币</span>
+              <span>Select Token</span>
             )}
           </div>
           <ChevronDownIcon className="w-5 h-5" />
@@ -94,9 +94,9 @@ export const Step1 = ({ token1, token2, onTokenSelect, onNext }: Props) => {
       </div>
 
       <div className="mb-8">
-        <h3 className="text-lg font-bold mb-2">费用等级</h3>
+        <h3 className="text-lg font-bold mb-2">Fee Tier</h3>
         <p className="text-gray-400 mb-2">
-          通过提供流动性赚取的金额。所有 v2 资金池收取 0.3% 的固定费用
+          Earn by providing liquidity. All v2 pools charge a fixed fee of 0.3%.
         </p>
       </div>
       <button
@@ -108,7 +108,7 @@ export const Step1 = ({ token1, token2, onTokenSelect, onNext }: Props) => {
         }`}
         disabled={!token1 || !token2}
       >
-        继续
+        Continue
       </button>
 
       <SelectTokenDialog

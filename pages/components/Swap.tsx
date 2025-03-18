@@ -534,6 +534,7 @@ export const Swap = ({ slipValue }: SwapProps) => {
         className="w-full bg-purple-600 hover:bg-purple-700 mt-4 py-6 text-lg flex items-center justify-center"
         onClick={fetchDexSwap}
         disabled={
+          !isConnected ||
           isFetchingPrice ||
           isInsufficientBalance ||
           !tokenOne ||
@@ -543,7 +544,9 @@ export const Swap = ({ slipValue }: SwapProps) => {
           isSwapping
         }
       >
-        {isFetchingPrice ? (
+        {!isConnected ? (
+          "Connect Wallet"
+        ) : isFetchingPrice ? (
           <>
             <Loader className="mr-2 animate-spin" />
             Searching Price...

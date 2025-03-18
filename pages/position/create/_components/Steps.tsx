@@ -20,8 +20,8 @@ export const Steps = ({ currentStep, onStepClick }: Props) => {
           1
         </div>
         <div>
-          <div className="text-sm text-gray-400">步骤 1</div>
-          <div className="font-medium">选择代币对和杠杆用</div>
+          <div className="text-sm text-gray-400">Step 1</div>
+          <div className="font-medium">Select Token Pair and Leverage</div>
         </div>
       </button>
 
@@ -37,8 +37,8 @@ export const Steps = ({ currentStep, onStepClick }: Props) => {
           2
         </div>
         <div>
-          <div className="text-sm text-gray-400">步骤 2</div>
-          <div className="font-medium">输入存款金额</div>
+          <div className="text-sm text-gray-400">Step 2</div>
+          <div className="font-medium">Enter Deposit Amount</div>
         </div>
       </div>
     </div>

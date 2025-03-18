@@ -34,7 +34,7 @@ export const AddLiquidityForm = ({
   routerAddress,
   onTransactionStatusChange=()=>{},
 }: AddLiquidityFormProps) => {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
   const { writeContract, isPending, data: hash } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({ hash });
@@ -200,23 +200,24 @@ export const AddLiquidityForm = ({
     }
   };
 
-  const buttonText =
-    isPending || isConfirming
-      ? "Creating position..."
-      : hasBalanceError
-      ? `${token1ExceedsBalance ? token1.ticker : ""}${
-          token1ExceedsBalance && token2ExceedsBalance ? " 和 " : ""
-        }${token2ExceedsBalance ? token2.ticker : ""} 余额不足`
-      : isAmountEntered
-      ? "确认"
-      : "输入金额";
+  const buttonText = !isConnected
+    ? "Connect Wallet"
+    : isPending || isConfirming
+    ? "Creating position..."
+    : hasBalanceError
+    ? `${token1ExceedsBalance ? token1.ticker : ""}${
+        token1ExceedsBalance && token2ExceedsBalance ? " and " : ""
+      }${token2ExceedsBalance ? token2.ticker : ""} insufficient balance`
+    : isAmountEntered
+    ? "Confirm"
+    : "Enter amount";
 
   return (
     <div className="border border-gray-800 rounded-3xl p-6 space-y-6">
       <div className="space-y-1">
-        <h2 className="text-xl font-bold">存入代币</h2>
+        <h2 className="text-xl font-bold">Deposit Tokens</h2>
         <p className="text-sm text-gray-400">
-          指定你的流动性资产页面的代币金额。
+          Specify the token amounts for your liquidity position.
         </p>
       </div>
 
@@ -273,12 +274,20 @@ export const AddLiquidityForm = ({
       <Button
         onClick={handleAddLiquidity}
         className={`w-full py-4 rounded-2xl text-center font-medium ${
-          isAmountEntered && !hasBalanceError && !isPending && !isConfirming
+          isConnected &&
+          isAmountEntered &&
+          !hasBalanceError &&
+          !isPending &&
+          !isConfirming
             ? "bg-purple-600 hover:bg-purple-700"
             : "bg-gray-600 text-gray-400 cursor-not-allowed"
         }`}
         disabled={
-          !isAmountEntered || hasBalanceError || isPending || isConfirming
+          !isConnected ||
+          !isAmountEntered ||
+          hasBalanceError ||
+          isPending ||
+          isConfirming
         }
       >
         {buttonText}

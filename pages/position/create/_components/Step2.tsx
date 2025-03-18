@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { AddLiquidityForm } from "./AddLiquidityForm"; // 假设新组件在同一目录下
+import { AddLiquidityForm } from "./AddLiquidityForm";
 import { routerAddress } from "@/resource";
 
 type Token = {
