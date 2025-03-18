@@ -5,7 +5,7 @@ type Props = {
   onStepClick: (step: number) => void;
 };
 
-export const Steps = ({ currentStep, onStepClick }: Props) => {
+const Steps = ({ currentStep, onStepClick }: Props) => {
   useEffect(() => {
     console.log("currentStep", currentStep);
   }, [currentStep]);
@@ -44,3 +44,5 @@ export const Steps = ({ currentStep, onStepClick }: Props) => {
     </div>
   );
 };
+
+export default Steps;

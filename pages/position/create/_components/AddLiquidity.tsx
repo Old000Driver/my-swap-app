@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Header } from "./Header";
-import { Steps } from "./Steps";
+import  Header  from "./Header";
+import  Steps  from "./Steps";
 import { Step1 } from "./Step1";
 import { Step2 } from "./Step2";
 
@@ -10,7 +10,7 @@ type Token = {
   ticker: string;
 };
 
-export function AddLiquidity() {
+export default function AddLiquidity() {
   const [step, setStep] = useState(1);
   const [token1, setToken1] = useState<Token | null>(null);
   const [token2, setToken2] = useState<Token | null>(null);

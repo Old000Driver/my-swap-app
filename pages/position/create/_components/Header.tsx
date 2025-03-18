@@ -7,7 +7,7 @@ type Props = {
   onReset: () => void;
 };
 
-export const Header = ({ onReset }: Props) => {
+const Header = ({ onReset }: Props) => {
   return (
     <div className="border-red-500 mb-6">
       <div className="text-sm text-gray-400 mb-2">
@@ -36,3 +36,5 @@ export const Header = ({ onReset }: Props) => {
     </div>
   );
 };
+
+export default Header;

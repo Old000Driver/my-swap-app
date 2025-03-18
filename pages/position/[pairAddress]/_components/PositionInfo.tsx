@@ -9,7 +9,7 @@ import { ethers } from "ethers";
 import { useAccount, useReadContract } from "wagmi";
 import { pair_ABI } from "@/resource.js"; // 假设 ABI 定义在此处
 import { routerAddress } from "@/resource.js";
-import { RemoveLiquidityForm } from "./RemoveLiquidityForm";
+import RemoveLiquidityForm from "./RemoveLiquidityForm";
 
 import {
   Dialog,
@@ -17,11 +17,11 @@ import {
   DialogContent,
   DialogClose,
 } from "@/components/ui/dialog";
-import { AddLiquidityDialog } from "./AddLiquidityDialog";
+import AddLiquidityDialog from "./AddLiquidityDialog";
 import tokenList from "@/tokenList.json";
 import type { Token } from "@/types";
 
-export function PositionInfo() {
+export default function PositionInfo() {
   const router = useRouter();
   const { pairAddress } = router.query;
   const { address: userAddress } = useAccount();
@@ -328,12 +328,42 @@ export function PositionInfo() {
                 </Button>
               </div>
             </DialogTrigger>
-            <AddLiquidityDialog
-              token1={token0Token!}
-              token2={token1Token!}
-              pairAddress={pairAddress as string}
-              routerAddress={routerAddress}
-            />
+            <DialogContent
+              hideCloseButton={true}
+              className="sm:max-w-md p-0 bg-gray-900 text-white border-zinc-800 overflow-hidden relative"
+              onInteractOutside={(e) => {
+                if (isTransactionActiveAdd) e.preventDefault();
+              }}
+              onEscapeKeyDown={(e) => {
+                if (isTransactionActiveAdd) e.preventDefault();
+              }}
+            >
+              {/* Hide the default close button via CSS */}
+              <style jsx>{`
+                .absolute.right-4.top-4 {
+                  display: none;
+                }
+              `}</style>
+
+              <div className="flex items-center justify-between p-4 border-b border-zinc-800">
+                <h2 className="text-lg font-medium">Add Liquidity</h2>
+                <DialogClose>
+                  <button
+                    className="text-zinc-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isTransactionActiveAdd}
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </DialogClose>
+              </div>
+              <AddLiquidityDialog
+                token1={token0Token!}
+                token2={token1Token!}
+                pairAddress={pairAddress as string}
+                routerAddress={routerAddress}
+                onTransactionStatusChange={setIsTransactionActiveAdd}
+              />
+            </DialogContent>
           </Dialog>
 
           <Dialog
@@ -351,7 +381,10 @@ export function PositionInfo() {
                 Remove Liquidity
               </Button>
             </DialogTrigger>
-            <DialogContent hideCloseButton={true} className="sm:max-w-md p-0 bg-gray-900 text-white border-zinc-800 overflow-hidden">
+            <DialogContent
+              hideCloseButton={true}
+              className="sm:max-w-md p-0 bg-gray-900 text-white border-zinc-800 overflow-hidden"
+            >
               <div className="flex items-center justify-between p-4 border-b border-zinc-800">
                 <h2 className="text-lg font-medium">Remove Liquidity</h2>
                 <DialogClose asChild>

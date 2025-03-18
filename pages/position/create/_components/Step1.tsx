@@ -3,7 +3,7 @@ import {
   Cog6ToothIcon,
   ChevronDownIcon,
 } from "@/components/ui/icons";
-import { SelectTokenDialog } from "@/pages/components/SelectTokenDialog";
+import  SelectTokenDialog  from "@/pages/components/SelectTokenDialog";
 import { useState } from "react";
 import Image from "next/image";
 import tokenList from "@/tokenList.json";
@@ -120,3 +120,5 @@ export const Step1 = ({ token1, token2, onTokenSelect, onNext }: Props) => {
     </div>
   );
 };
+
+export default Step1;

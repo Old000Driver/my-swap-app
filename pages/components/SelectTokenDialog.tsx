@@ -15,7 +15,7 @@ interface SelectTokenDialogProps {
   filter?: string;
 }
 
-export const SelectTokenDialog = ({ open, onOpenChange, onSelect, filter }: SelectTokenDialogProps) => {
+export default function SelectTokenDialog({ open, onOpenChange, onSelect, filter }: SelectTokenDialogProps){
   const filteredTokenList = filter === "pool"
     ? tokenList.filter(token => token.ticker !== "WETH")
     : tokenList;

@@ -1,4 +1,4 @@
-import { Position } from "./_components/Position";
+import  Position  from "./_components/Position";
 
 export default function PositionPage() {
   return (

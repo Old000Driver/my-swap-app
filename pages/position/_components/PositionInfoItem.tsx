@@ -16,7 +16,7 @@ type PositionInfoItemProps = {
   hasPosition: boolean; // 新增参数
 };
 
-export const PositionInfoItem = ({
+const PositionInfoItem = ({
   pairAddress,
   pairName,
   pairToken0,
@@ -114,3 +114,5 @@ export const PositionInfoItem = ({
     </div>
   );
 };
+
+export default PositionInfoItem;

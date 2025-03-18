@@ -27,13 +27,13 @@ type AddLiquidityFormProps = {
   onTransactionStatusChange?: (isActive: boolean) => void; // 新增回调
 };
 
-export const AddLiquidityForm = ({
-  token1,
-  token2,
+export default function AddLiquidityForm({
+  token1 = { address: "", img: "", ticker: "" },
+  token2 = { address: "", img: "", ticker: "" },
   pairAddress,
   routerAddress,
   onTransactionStatusChange=()=>{},
-}: AddLiquidityFormProps) => {
+}: AddLiquidityFormProps){
   const { address, isConnected } = useAccount();
   const { writeContract, isPending, data: hash } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } =

@@ -1,11 +1,11 @@
 import { ChevronDown, Plus } from "lucide-react";
-import { PositionInfoItem } from "./PositionInfoItem";
+import  PositionInfoItem  from "./PositionInfoItem";
 import { useAccount, useReadContract } from "wagmi";
 import tokenPairs from "@/pairAddressList.json"; // 导入你的 Token Pair 列表
 import { factory_ABI, pair_ABI } from "@/resource";
 import { useRouter } from "next/router";
 
-export function Position() {
+export default function Position() {
   const { address } = useAccount(); // 获取用户地址
 
   const route = useRouter();

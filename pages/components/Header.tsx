@@ -6,7 +6,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 
-export const Header = () => {
+export default function Header() {
   const router = useRouter();
   const [selected, setSelected] = useState("swap");
 
@@ -31,7 +31,9 @@ export const Header = () => {
         <div className="flex items-center space-x-4">
           <Button
             variant="link"
-            className={`font-medium text-lg ${selected === "swap" ? "text-white" : "text-gray-400"}`}
+            className={`font-medium text-lg ${
+              selected === "swap" ? "text-white" : "text-gray-400"
+            }`}
             onClick={() => {
               setSelected("swap");
               router.push("/");
@@ -41,7 +43,9 @@ export const Header = () => {
           </Button>
           <Button
             variant="link"
-            className={`font-medium text-lg ${selected === "pool" ? "text-white" : "text-gray-400"}`}
+            className={`font-medium text-lg ${
+              selected === "pool" ? "text-white" : "text-gray-400"
+            }`}
             onClick={() => {
               setSelected("pool");
               router.push("/position");
@@ -57,4 +61,4 @@ export const Header = () => {
       </div>
     </div>
   );
-};
+}

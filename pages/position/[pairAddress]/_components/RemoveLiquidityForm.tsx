@@ -28,9 +28,9 @@ type RemoveLiquidityFormProps = {
   onTransactionStatusChange?: (isActive: boolean) => void;
 };
 
-export const RemoveLiquidityForm = ({
-  token1,
-  token2,
+const RemoveLiquidityForm = ({
+  token1 = { address: "", img: "", ticker: "" },
+  token2 = { address: "", img: "", ticker: "" },
   pairAddress,
   routerAddress,
   onTransactionStatusChange,
@@ -297,3 +297,5 @@ export const RemoveLiquidityForm = ({
     </div>
   );
 };
+
+export default RemoveLiquidityForm;

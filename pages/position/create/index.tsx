@@ -1,4 +1,4 @@
-import { AddLiquidity } from "./_components/AddLiquidity";
+import  AddLiquidity  from "./_components/AddLiquidity";
 
 export default function CreatePage() {
   return (

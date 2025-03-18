@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
-import { SelectTokenDialog } from "./SelectTokenDialog";
+import  SelectTokenDialog  from "./SelectTokenDialog";
 import {
   useAccount,
   useBalance,
@@ -285,3 +285,5 @@ export function Send() {
     </div>
   );
 }
+
+export default Send;

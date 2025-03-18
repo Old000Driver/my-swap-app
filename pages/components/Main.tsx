@@ -12,7 +12,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-export const Main = () => {
+const Main = () => {
   const [showType, setShowType] = useState("swap");
   const [slippageValue, setSlippageValue] = useState("5.0");
   const [isClient, setIsClient] = useState(false);
@@ -103,3 +103,5 @@ export const Main = () => {
     </div>
   );
 };
+
+export default Main;

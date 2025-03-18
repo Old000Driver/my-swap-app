@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SelectTokenDialog } from "./SelectTokenDialog";
+import  SelectTokenDialog  from "./SelectTokenDialog";
 import { ReactElement, useEffect, useState } from "react";
 import { ChevronDown, ArrowDown, Loader } from "lucide-react";
 import { ethers, JsonRpcProvider } from "ethers";
@@ -569,3 +569,5 @@ export const Swap = ({ slipValue }: SwapProps) => {
     </div>
   );
 };
+
+export default Swap;

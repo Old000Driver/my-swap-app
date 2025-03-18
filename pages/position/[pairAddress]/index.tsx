@@ -1,4 +1,4 @@
-import { PositionInfo } from "./_components/PositionInfo";
+import PositionInfo  from "./_components/PositionInfo";
 
 
 export default function PositionPage() {
