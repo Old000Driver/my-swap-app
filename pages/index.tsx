@@ -2,7 +2,7 @@ import { Main } from "./components/Main";
 
 export default function SwapPage() {
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className=" text-white">
       {/* Navigation */}
       {/* Main Content */}
       <Main />

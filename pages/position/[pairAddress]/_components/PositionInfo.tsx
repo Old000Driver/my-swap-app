@@ -162,8 +162,67 @@ export function PositionInfo() {
   if (!positionData || !pairAddress || !userAddress) {
     return (
       <div className="min-h-screen w-screen bg-black text-white p-6">
-        <div className="max-w-2xl mx-auto p-4 text-center">
-          loading Position Info...
+        <div className="max-w-2xl mx-auto p-4 border border-gray-700 rounded-3xl">
+          <div className="flex items-center text-gray-400 mb-6">
+            <div className="h-6 bg-gray-700 rounded w-1/3 animate-pulse"></div>
+            <ChevronRight className="h-4 w-4 mx-1" />
+            <div className="h-6 bg-gray-700 rounded w-1/6 animate-pulse"></div>
+          </div>
+
+          <div className="flex items-center mb-6">
+            <div className="relative h-12 w-12 mr-3 bg-gray-700 rounded-full animate-pulse"></div>
+            <div>
+              <div className="flex items-center">
+                <div className="h-6 bg-gray-700 rounded w-1/2 animate-pulse mr-2"></div>
+                {/* <Badge variant="outline" className="bg-gray-800 text-xs h-5">
+                  v2
+                </Badge> */}
+              </div>
+              <div className="flex items-center mt-1">
+                <span className="h-2 w-2 bg-gray-700 rounded-full mr-2 animate-pulse"></span>
+                <span className="h-4 bg-gray-700 rounded w-1/4 animate-pulse"></span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-4 mb-6">
+            <div className="h-10 bg-gray-700 rounded-full w-1/3 animate-pulse"></div>
+            <div className="h-10 bg-gray-700 rounded-full w-1/3 animate-pulse"></div>
+          </div>
+
+          <Card className="bg-gray-900 border-gray-800 p-6 text-white rounded-xl">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <span className="h-6 bg-gray-700 rounded w-1/3 animate-pulse"></span>
+                <span className="h-6 bg-gray-700 rounded w-1/4 animate-pulse"></span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="h-6 bg-gray-700 rounded w-1/3 animate-pulse"></span>
+                <div className="flex items-center">
+                  <span className="h-6 bg-gray-700 rounded w-1/4 animate-pulse mr-2"></span>
+                  <div className="h-6 w-6 bg-gray-700 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="h-6 bg-gray-700 rounded w-1/3 animate-pulse"></span>
+                <div className="flex items-center">
+                  <span className="h-6 bg-gray-700 rounded w-1/4 animate-pulse mr-2"></span>
+                  <div className="h-6 w-6 bg-gray-700 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="h-6 bg-gray-700 rounded w-1/3 animate-pulse"></span>
+                <div className="flex items-center">
+                  <span className="h-6 bg-gray-700 rounded w-1/4 animate-pulse mr-2"></span>
+                  <div className="h-6 w-6 bg-gray-700 rounded-full animate-pulse"></div>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="h-6 bg-gray-700 rounded w-1/3 animate-pulse"></span>
+                <span className="h-6 bg-gray-700 rounded w-1/4 animate-pulse"></span>
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
     );

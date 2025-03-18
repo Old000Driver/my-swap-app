@@ -1,7 +1,8 @@
-import { Info } from "lucide-react";
 import Image from "next/image";
 import { ethers } from "ethers";
 import { useRouter } from "next/router";
+import { toast,Toaster } from "sonner";
+
 
 type PositionInfoItemProps = {
   pairAddress: string;
@@ -12,6 +13,7 @@ type PositionInfoItemProps = {
   reserves: [bigint, bigint];
   token0Decimals: number;
   token1Decimals: number;
+  hasPosition: boolean; // 新增参数
 };
 
 export const PositionInfoItem = ({
@@ -23,6 +25,7 @@ export const PositionInfoItem = ({
   reserves,
   token0Decimals,
   token1Decimals,
+  hasPosition,
 }: PositionInfoItemProps) => {
   // 计算价值（基于储备量和假价格）
   const value = reserves
@@ -37,8 +40,20 @@ export const PositionInfoItem = ({
   const status = isAvailable ? "In range" : "Unavailable";
   const route = useRouter();
 
+  const handleClick = () => {
+    if (hasPosition) {
+      route.push(`/position/${pairAddress}`);
+    } else {
+      toast.warning("Please add position")
+    }
+  };
+
   return (
-    <div className="bg-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-800 transition-colors" onClick={()=>route.push(`/position/${pairAddress}`)}>
+    <div
+      className="bg-gray-900 rounded-xl overflow-hidden cursor-pointer hover:bg-gray-800 transition-colors"
+      onClick={handleClick}
+    >
+      <Toaster/>
       <div className="p-4 flex justify-between items-center">
         <div className="flex items-center">
           <div className="relative w-10 h-10 mr-3">

@@ -18,13 +18,15 @@ export function Position() {
         address: pairAddress as `0x$`,
         abi: pair_ABI,
         functionName: "balanceOf",
-        args: [address || "0x0000000000000000000000000000000000000000"], // 默认地址
+        args: [address], // 默认地址
       });
       const { data: reserves } = useReadContract({
         address: pairAddress as `0x${string}`,
         abi: pair_ABI,
         functionName: "getReserves",
       });
+
+      console.log("address",address,lpBalance);
 
       // 确保 lpBalance 和 reserves 存在且有效
       if (
@@ -33,14 +35,14 @@ export function Position() {
         typeof lpBalance === "bigint" &&
         lpBalance > BigInt(0)
       ) {
-        return { ...pair, lpBalance, reserves };
+        return { ...pair, lpBalance, reserves, hasPosition: true };
       }
-      return null;
+      return { ...pair, hasPosition: false };
     })
     .filter(Boolean); // 过滤空值
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className=" text-white p-6">
       <div className="max-w-2xl mx-auto p-4 border border-gray-700 rounded-3xl">
         <h1 className="text-2xl font-bold mb-6">Your positions</h1>
         <div className="flex flex-wrap gap-3 mb-6 border-b border-gray-700 pb-4">
@@ -62,11 +64,13 @@ export function Position() {
                   pairName={position.pairName}
                   pairToken0={position.pairToken0}
                   pairToken1={position.pairToken1}
+                  // @ts-ignore
                   lpBalance={position.lpBalance}
                   // @ts-ignore
                   reserves={position.reserves}
                   token0Decimals={position.pairToken0Decimals}
                   token1Decimals={position.pairToken1Decimals}
+                  hasPosition={position.hasPosition}
                 />
               )
           )
