@@ -99,6 +99,7 @@ export async function swapETHToWETH(
       {
         onSuccess: async (hash: string) => {
           toast.success("Wrapping ETH to WETH: " + hash);
+          // @ts-ignore
           await waitForTransactionReceipt(config, { hash });
           resolve();
         },
@@ -145,6 +146,7 @@ export async function swapWETHToETH(
       {
         onSuccess: async (hash: string) => {
           toast.success("Unwrapping WETH to ETH: " + hash);
+          // @ts-ignore
           await waitForTransactionReceipt(config, { hash });
           resolve();
         },
@@ -206,10 +208,13 @@ export async function swapETHToToken(
       {
         onSuccess: async (hash: string) => {
           toast.success("Swap transaction sent: " + hash);
+          // @ts-ignore
           const receipt = await waitForTransactionReceipt(config, { hash });
           setTxDetails({
             to: receipt.to,
+            // @ts-ignore
             data: receipt.data,
+            // @ts-ignore
             value: receipt.value,
           });
           resolve();
@@ -281,6 +286,7 @@ export async function swapTokenToETH(
       {
         onSuccess: async (hash: string) => {
           toast.success("Approval transaction sent: " + hash);
+          // @ts-ignore
           await waitForTransactionReceipt(config, { hash });
           resolve();
         },
@@ -303,10 +309,13 @@ export async function swapTokenToETH(
       {
         onSuccess: async (hash: string) => {
           toast.success("Swap transaction sent: " + hash);
+          // @ts-ignore
           const receipt = await waitForTransactionReceipt(config, { hash });
           setTxDetails({
             to: receipt.to,
+            // @ts-ignore
             data: receipt.data,
+            // @ts-ignore
             value: receipt.value,
           });
           resolve();
@@ -370,6 +379,7 @@ export async function swapTokenToToken(
       {
         onSuccess: async (hash: string) => {
           toast.success("Approval transaction sent: " + hash);
+          // @ts-ignore
           await waitForTransactionReceipt(config, { hash });
           resolve();
         },
@@ -392,10 +402,13 @@ export async function swapTokenToToken(
       {
         onSuccess: async (hash: string) => {
           toast.success("Swap transaction sent: " + hash);
+          // @ts-ignore
           const receipt = await waitForTransactionReceipt(config, { hash });
           setTxDetails({
             to: receipt.to,
+            // @ts-ignore
             data: receipt.data,
+            // @ts-ignore
             value: receipt.value,
           });
           resolve();
